@@ -1,14 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using MyProject.BusinessLayer.BaseServices;
+using MyProject.BusinessLayer.Interfaces;
+using MyProject.BusinessLayer.Services;
+using MyProject.Core.Repositories;
+using MyProject.Core.Services;
+using MyProject.Core.UnitOfWorks;
+using MyProject.DataAccess.Context;
+using MyProject.DataAccess.UnitOfWorks;
 
 namespace MyProject.WebApi
 {
@@ -24,6 +27,13 @@ namespace MyProject.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<AppDbContext>(options =>
+                 options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped(typeof(IService<>), typeof(Service<>));
+            services.AddScoped<IKullaniciService, KullaniciService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+        
             services.AddControllers();
         }
 
